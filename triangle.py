@@ -2,28 +2,25 @@ from tkinter import *
 import random
 
 root = Tk()
+root.resizable(False, False)
+root.title('Sierpinski\'s Triangle Demo')
 c_width, c_height = 1000, 1000
-
-# t = {1:{'x':c_width/2, 'y':c_height-950},
-#      2:{'x':c_width-950, 'y':c_height-50},
-#      3:{'x':c_width-50, 'y':c_height-50}}
-
-c = Canvas(root, width=c_width, height=c_height, bg='black')
-c.pack()
+canvas = Canvas(root, width=c_width, height=c_height, bg='black')
+canvas.pack()
 
 def plot_point(x, y):
-    c.create_oval(x, y, x+1, y+1, outline='white')
+    canvas.create_oval(x, y, x+1, y+1, outline='white')
     return {'x':x, 'y':y}
-
-t = {1:plot_point(c_width/2, c_height-950),
-     2:plot_point(c_width-950, c_height-50),
-     3:plot_point(c_width-50, c_height-50)}
 
 def intercept(x, tline):
     m = (tline['y2'] - tline['y1'])/(tline['x2'] - tline['x1'])
     return m*(x-tline['x1'])+tline['y1']
 
 def simulate(n_points):
+    t = {1:plot_point(c_width/2, c_height-950),
+         2:plot_point(c_width-950, c_height-50),
+         3:plot_point(c_width-50, c_height-50)}
+
     # Some fancy math to figure out the bounds. This method is random enough but is skewed to the lower portion of the triangle.
     # x = random.randint(x2, x3)
     # y = random.randint(m(x-x1)+y1, y2) m changes depending on what side of the triangle x happens to be on.
@@ -39,5 +36,15 @@ def simulate(n_points):
         mp = plot_point((p['x']+rtp['x'])/2,(p['y']+rtp['y'])/2)
         p = mp
 
-simulate(100000)
+iterations = 10000
+simulate(0)
+
+# This is the worst way to update the canvas. I will update later to keep track of each point and draw and erase as the slider moves.
+def slider_changed(event):
+    canvas.delete("all")
+    simulate(slider.get())
+
+slider = Scale(root,from_=0,to=iterations,length=c_width,orient='horizontal',command=slider_changed)
+slider.pack()
+
 root.mainloop()
